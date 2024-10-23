@@ -1,13 +1,21 @@
-import { sql } from '@vercel/postgres';
 import express, { Request, Response } from 'express';
+import { getGoogleToken, getGoogleUserInfo } from '../utils/auth';
+import { sql } from '@vercel/postgres';
 import { isExistRows } from '../utils/sql';
-import { getGoogleUserInfo } from '../utils/auth';
 
 const authRouter = express.Router()
 
 authRouter.post('/login', async (req: Request, res: Response) => {
-  const accessToken = req.body.accessToken
-  const userInfo = await getGoogleUserInfo(accessToken)
+  const code = req.body.code
+
+  const token = await getGoogleToken(code)
+
+  if (!token) {
+    res.send('login failed')
+    return
+  }
+
+  const userInfo = await getGoogleUserInfo(token.access_token)
 
   const { rows } = await sql`
   SELECT EXISTS (
@@ -17,7 +25,7 @@ authRouter.post('/login', async (req: Request, res: Response) => {
   );`
 
   if (isExistRows(rows)) {
-    res.send('login success')
+    res.send({ message: 'login success', accessToken: token.access_token })
   }
 
 
@@ -25,7 +33,7 @@ authRouter.post('/login', async (req: Request, res: Response) => {
   INSERT INTO users 
     (id, email, profile_image, nickname) 
   VALUES (${userInfo.id}, ${userInfo.email}, ${userInfo.picture}, ${userInfo.name});`
-  res.send('regist user')
+  res.send({ message: 'regist user', refreshToken: token.refresh_token })
 });
 
 export default authRouter
