@@ -1,6 +1,7 @@
 import { GoogleTokenType, GoogleUserInfoType } from "../model/auth";
+import jwt from 'jsonwebtoken';
 
-export const getGoogleToken = async (code: string): Promise<GoogleTokenType | null> => {
+export const getGoogleTokenByCode = async (code: string): Promise<GoogleTokenType | null> => {
   try {
     const response = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
@@ -35,4 +36,11 @@ export const getGoogleUserInfo = async (accessToken: string): Promise<GoogleUser
   )
 
   return userInfo.json()
+}
+
+export const generateJwtToken = (payload: Pick<GoogleUserInfoType, 'id'>) => {
+  const secretKey = process.env.JWT_SECRET_KEY
+  const token = jwt.sign(payload, secretKey, { expiresIn: '1h' })
+
+  return token
 }
