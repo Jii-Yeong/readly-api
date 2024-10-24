@@ -44,3 +44,19 @@ export const generateJwtToken = (payload: Pick<GoogleUserInfoType, 'id'>) => {
 
   return token
 }
+
+export const decodeJwtToken = (accessToken: string) => {
+  const secretKey = process.env.JWT_SECRET_KEY
+
+  try {
+    const isVerify = jwt.verify(accessToken, secretKey)
+
+    if (!isVerify) throw new Error('invalid token')
+
+    const decoded = jwt.decode(accessToken)
+
+    return decoded
+  } catch (e) {
+    return e
+  }
+}
