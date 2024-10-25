@@ -1,17 +1,21 @@
 import express from 'express';
+import bodyParser from 'body-parser';
 import cors from 'cors';
 import authRouter from './auth';
 import userRouter from './user';
+import bookRouter from './book';
 
-export const router = express.Router();
+export const app = express();
 
 const corsOptions = {
   origin: process.env.CLIENT_URL
 }
 
-router.use(cors(corsOptions))
+app.use(cors(corsOptions))
+app.use(bodyParser.json())
 
-router.use('/auth', authRouter)
-router.use('/user', userRouter)
+app.use('/auth', authRouter)
+app.use('/user', userRouter)
+app.use('/book', bookRouter)
 
-module.exports = router;
+module.exports = app;
