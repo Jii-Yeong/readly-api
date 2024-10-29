@@ -31,6 +31,7 @@ bookRouter.post('/summary/create', async (req: Request, res: Response) => {
 
   if (!content || !bookInfo) {
     res.status(401).send('A required parameter is missing.')
+    return
   }
 
   await sql`
@@ -48,5 +49,49 @@ bookRouter.post('/summary/create', async (req: Request, res: Response) => {
 
   res.send('success created')
 })
+
+bookRouter.get('/summary', async (req: Request, res: Response) => {
+  const id = req.query?.id
+
+  if (!id) {
+    res.status(401).send('A required parameter is missing.')
+    return
+  }
+
+  const { rows } = await sql`
+  SELECT * 
+  FROM summaries 
+  WHERE id = ${String(id)};`
+
+  const row = rows[0]
+
+  if (!row) {
+    res.status(401).send('Summary does not exist.')
+    return
+  }
+
+  res.json(row)
+})
+
+bookRouter.delete('/summary/delete', async (req: Request, res: Response) => {
+  const id = req.body?.id
+
+  if (!id) {
+    res.status(401).send('A required parameter is missing.')
+  }
+
+  const { rowCount } = await sql`
+  DELETE 
+  FROM summaries 
+  WHERE id = ${String(id)};`
+
+  if (!rowCount) {
+    res.status(401).send('Summary does not exist.')
+    return
+  }
+
+  res.send('Success deleted.')
+})
+
 
 export default bookRouter
