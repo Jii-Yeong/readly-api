@@ -85,12 +85,25 @@ bookRouter.delete('/summary/delete', async (req: Request, res: Response) => {
   FROM summaries 
   WHERE id = ${String(id)};`
 
-  if (!rowCount) {
+  if (!rowCount || rowCount <= 0) {
     res.status(401).send('Summary does not exist.')
     return
   }
 
   res.send('Success deleted.')
+})
+
+bookRouter.get('/summary/list', async (req: Request, res: Response) => {
+  const { rows, rowCount } = await sql`
+  SELECT * 
+  FROM summaries`
+
+  if (!rowCount || rowCount <= 0) {
+    res.json([])
+    return
+  }
+
+  res.json(rows)
 })
 
 
