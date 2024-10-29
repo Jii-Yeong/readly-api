@@ -45,7 +45,7 @@ export const generateJwtToken = (payload: Pick<GoogleUserInfoType, 'id'>) => {
   return token
 }
 
-export const decodeJwtToken = (accessToken: string) => {
+export const decodeJwtToken = (accessToken: string): Pick<GoogleUserInfoType, 'id'> => {
   const secretKey = process.env.JWT_SECRET_KEY
 
   try {
